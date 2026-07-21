@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Vehicle Plate Detection</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    text-align:center;
+    margin-top:50px;
+}
+
+
+.container{
+
+    width:400px;
+    margin:auto;
+    border:1px solid black;
+    padding:20px;
+    border-radius:10px;
+
+}
+
+
+button{
+
+    margin-top:20px;
+    padding:10px 30px;
+    cursor:pointer;
+
+}
+
+
+#preview{
+
+    margin-top:20px;
+    border:1px solid gray;
+
+}
+
+
+#result{
+
+    margin-top:20px;
+    border:1px solid gray;
+    padding:15px;
+    text-align:left;
+
+}
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<h2>Vehicle Number Plate Detection</h2>
+
+
+<input type="file" id="image" accept="image/*">
+
+
+<br><br>
+
+
+<img id="preview" width="300">
+
+
+<br><br>
+
+
+<button onclick="uploadImage()">
+Upload Image
+</button>
+
+
+
+<div id="result">
+
+Waiting for upload...
+
+</div>
+
+
+</div>
+
+
+
+
+<script>
+
+
+// Image preview
+
+document.getElementById("image").onchange = function(){
+
+
+    let file = this.files[0];
+
+
+    if(file){
+
+        document.getElementById("preview").src =
+        URL.createObjectURL(file);
+
+    }
+
+
+};
+
+
+
+
+
+// Upload image to backend
+
+async function uploadImage(){
+
+
+    let fileInput = document.getElementById("image");
+
+
+    if(fileInput.files.length === 0){
+
+        alert("Please select an image");
+
+        return;
+
+    }
+
+
+
+    let formData = new FormData();
+
+
+
+    formData.append(
+        "image",
+        fileInput.files[0]
+    );
+
+
+
+    document.getElementById("result").innerHTML =
+    "Processing...";
+
+
+
+    try{
+
+
+        let response = await fetch(
+            "http://localhost:3000/api/upload",
+            {
+                method:"POST",
+                body:formData
+            }
+        );
+
+
+
+        let data = await response.json();
+
+
+
+        console.log(data);
+
+
+
+        document.getElementById("result").innerHTML = `
+
+
+        <h3>Detection Result</h3>
+
+
+        Message :
+        ${data.message || "Success"}
+
+        <br><br>
+
+
+        Plate Number :
+        ${data.plateNumber || "Not detected"}
+
+        <br><br>
+
+
+        Blur Score :
+        ${data.blurScore || "N/A"}
+
+        <br><br>
+
+
+        Blur Status :
+        ${data.isBlur ? "Blur Image" : "Clear Image"}
+
+
+        `;
+
+
+
+    }
+
+    catch(error){
+
+
+        console.log(error);
+
+
+        document.getElementById("result").innerHTML =
+        "Server connection failed";
+
+
+    }
+
+
+
+}
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
