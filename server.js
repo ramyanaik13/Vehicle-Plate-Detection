@@ -14,34 +14,40 @@ app.use(express.json());
 // Serve frontend
 app.use(express.static(path.join(__dirname, "frontend")));
 
-// API Route
+// Upload API
 app.use("/api/upload", uploadRoute);
 
-// Home Page
+// Home page
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "frontend", "index.html"));
 });
 
-// =========================
+
+// ===============================
 // MongoDB Connection
-// =========================
+// ===============================
 
-const mongoURI =
-    process.env.MONGODB_URI ||
-    "mongodb://127.0.0.1:27017/vehicleDB";
+const mongoURI = process.env.MONGODB_URI;
 
-mongoose
-    .connect(mongoURI)
-    .then(() => {
-        console.log("✅ MongoDB Connected");
-    })
-    .catch((err) => {
-        console.error("❌ MongoDB Connection Error:", err.message);
-    });
+if (!mongoURI) {
+    console.log("❌ MONGODB_URI is missing in environment variables");
+} else {
 
-// =========================
+    mongoose.connect(mongoURI)
+        .then(() => {
+            console.log("✅ MongoDB Connected");
+        })
+        .catch((err) => {
+            console.log("❌ MongoDB Connection Error:");
+            console.log(err.message);
+        });
+
+}
+
+
+// ===============================
 // Start Server
-// =========================
+// ===============================
 
 const PORT = process.env.PORT || 3000;
 
