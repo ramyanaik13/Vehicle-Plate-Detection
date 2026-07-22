@@ -31,7 +31,7 @@ app.get("/", (req,res)=>{
 
 // MongoDB connection
 
-mongoose.connect("mongodb://127.0.0.1:27017/vehicleDB")
+mongoose.connect("mongodb+srv://vinayakramya80_db_user:ramya12@cluster0.qwtkmfx.mongodb.net/?appName=Cluster0")
 .then(() => {
   console.log("✅ MongoDB Connected");
 })

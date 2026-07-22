@@ -1,3 +1,191 @@
+// const express = require("express");
+// const multer = require("multer");
+// const path = require("path");
+
+// const resizeImage = require("../services/imageProcessor");
+// const detectBlur = require("../services/blurDetector");
+// const detectPlate = require("../services/plateAPIService");
+
+// const Image = require("../models/Image");
+
+
+// const router = express.Router();
+
+
+// // Multer storage
+
+// const storage = multer.diskStorage({
+
+//     destination:(req,file,cb)=>{
+
+//         cb(null,"uploads/");
+
+//     },
+
+
+//     filename:(req,file,cb)=>{
+
+//         cb(null,Date.now()+path.extname(file.originalname));
+
+//     }
+
+// });
+
+
+// const upload = multer({
+//     storage:storage
+// });
+
+
+
+
+
+// // Upload Route
+
+// router.post("/", upload.single("image"), async(req,res)=>{
+
+
+//     try{
+
+
+//         console.log("Upload route reached");
+
+
+//         if(!req.file){
+
+//             return res.status(400).json({
+
+//                 message:"No image uploaded"
+
+//             });
+
+//         }
+
+
+
+//         console.log("File:",req.file.filename);
+
+
+
+//         const imagePath = req.file.path;
+
+
+
+//         // Step 1: Image processing
+
+//         console.log("Step 1: Processing image...");
+
+//         const processedImage = await resizeImage(imagePath);
+
+
+
+//         // Step 2: Blur detection
+
+//         console.log("Step 2: Checking blur...");
+
+//         const blurResult = await detectBlur(processedImage);
+
+
+
+//         console.log(blurResult);
+
+
+
+//         // Step 3: Plate detection
+
+//         console.log("Step 3: Detecting plate...");
+
+
+//         const plateResult = await detectPlate(processedImage);
+
+
+
+//         console.log("Plate Result:",plateResult);
+
+
+
+
+//         // Step 4: Save MongoDB
+
+//         console.log("Step 4: Saving to MongoDB...");
+
+
+
+//         const newImage = new Image({
+
+//             originalName:req.file.originalname,
+
+//             processedName:path.basename(processedImage),
+
+//             size:req.file.size,
+
+//             blurScore:blurResult.score,
+
+//             isBlur:blurResult.isBlur,
+
+//             plateNumber:plateResult.plateNumber
+
+
+//         });
+
+
+
+//         await newImage.save();
+
+
+
+//         console.log("✅ Saved successfully");
+
+
+
+
+
+//         // Send response to frontend
+
+//         res.json({
+
+//             message:"Image processed successfully",
+
+//             plateNumber:plateResult.plateNumber,
+
+//             score:plateResult.score,
+
+//             blurScore:blurResult.score,
+
+//             isBlur:blurResult.isBlur
+
+//         });
+
+
+
+//     }
+
+//     catch(error){
+
+
+//         console.log("Upload Error:",error);
+
+
+//         res.status(500).json({
+
+//             message:"Server error",
+
+//             error:error.message
+
+//         });
+
+
+//     }
+
+
+// });
+
+
+
+// module.exports = router;
+
+
+
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
@@ -8,178 +196,168 @@ const detectPlate = require("../services/plateAPIService");
 
 const Image = require("../models/Image");
 
-
 const router = express.Router();
 
 
-// Multer storage
+// ======================
+// Multer Storage
+// ======================
 
 const storage = multer.diskStorage({
 
-    destination:(req,file,cb)=>{
+    destination: (req, file, cb) => {
 
-        cb(null,"uploads/");
+        cb(null, "uploads/");
 
     },
 
+    filename: (req, file, cb) => {
 
-    filename:(req,file,cb)=>{
-
-        cb(null,Date.now()+path.extname(file.originalname));
+        cb(null, Date.now() + path.extname(file.originalname));
 
     }
 
 });
 
-
 const upload = multer({
-    storage:storage
+    storage: storage
 });
 
 
-
-
-
+// ======================
 // Upload Route
+// ======================
 
-router.post("/", upload.single("image"), async(req,res)=>{
+router.post("/", upload.single("image"), async (req, res) => {
 
-
-    try{
-
+    try {
 
         console.log("Upload route reached");
 
-
-        if(!req.file){
+        if (!req.file) {
 
             return res.status(400).json({
 
-                message:"No image uploaded"
+                message: "No image uploaded"
 
             });
 
         }
 
-
-
-        console.log("File:",req.file.filename);
-
-
+        console.log("File:", req.file.filename);
 
         const imagePath = req.file.path;
 
-
-
-        // Step 1: Image processing
+        // ======================
+        // Step 1 : Image Processing
+        // ======================
 
         console.log("Step 1: Processing image...");
 
         const processedImage = await resizeImage(imagePath);
 
+        console.log("Image processed:", processedImage);
 
 
-        // Step 2: Blur detection
+        // ======================
+        // Step 2 : Blur Detection
+        // ======================
 
         console.log("Step 2: Checking blur...");
 
         const blurResult = await detectBlur(processedImage);
 
+        console.log("Blur Result:", blurResult);
 
 
-        console.log(blurResult);
-
-
-
-        // Step 3: Plate detection
+        // ======================
+        // Step 3 : Plate Detection
+        // ======================
 
         console.log("Step 3: Detecting plate...");
 
-
         const plateResult = await detectPlate(processedImage);
 
+        console.log("Plate Result:", plateResult);
 
 
-        console.log("Plate Result:",plateResult);
-
-
-
-
-        // Step 4: Save MongoDB
+        // ======================
+        // Step 4 : Save MongoDB
+        // ======================
 
         console.log("Step 4: Saving to MongoDB...");
 
+        try {
+
+            const newImage = new Image({
+
+                originalName: req.file.originalname,
+
+                processedName: path.basename(processedImage),
+
+                size: req.file.size,
+
+                blurScore: blurResult.score,
+
+                isBlur: blurResult.isBlur,
+
+                plateNumber: plateResult.plateNumber
+
+            });
+
+            await newImage.save();
+
+            console.log("✅ Saved successfully");
+
+        }
+        catch (dbError) {
+
+            console.log("⚠ MongoDB Save Failed");
+
+            console.log(dbError.message);
+
+        }
 
 
-        const newImage = new Image({
+        // ======================
+        // Send Response
+        // ======================
 
-            originalName:req.file.originalname,
+        return res.json({
 
-            processedName:path.basename(processedImage),
+            message: "Image processed successfully",
 
-            size:req.file.size,
+            plateNumber: plateResult.plateNumber || "Not detected",
 
-            blurScore:blurResult.score,
+            score: plateResult.score || 0,
 
-            isBlur:blurResult.isBlur,
+            blurScore: blurResult.score || "N/A",
 
-            plateNumber:plateResult.plateNumber
-
+            isBlur: blurResult.isBlur
 
         });
-
-
-
-        await newImage.save();
-
-
-
-        console.log("✅ Saved successfully");
-
-
-
-
-
-        // Send response to frontend
-
-        res.json({
-
-            message:"Image processed successfully",
-
-            plateNumber:plateResult.plateNumber,
-
-            score:plateResult.score,
-
-            blurScore:blurResult.score,
-
-            isBlur:blurResult.isBlur
-
-        });
-
-
 
     }
+    catch (error) {
 
-    catch(error){
+        console.log("Upload Error:", error);
 
+        return res.status(500).json({
 
-        console.log("Upload Error:",error);
+            message: "Server error",
 
+            plateNumber: "Not detected",
 
-        res.status(500).json({
+            blurScore: "N/A",
 
-            message:"Server error",
+            isBlur: false,
 
-            error:error.message
+            error: error.message
 
         });
 
-
     }
-
 
 });
-
-
 
 module.exports = router;
