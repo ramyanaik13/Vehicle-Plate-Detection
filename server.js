@@ -7,40 +7,44 @@ const uploadRoute = require("./routes/upload");
 
 const app = express();
 
-
+// Middleware
 app.use(cors());
 app.use(express.json());
-
 
 // Serve frontend
 app.use(express.static(path.join(__dirname, "frontend")));
 
-
-// API route
+// API Route
 app.use("/api/upload", uploadRoute);
 
-
-// Open UI
-app.get("/", (req,res)=>{
-    res.sendFile(
-        path.join(__dirname,"frontend","index.html")
-    );
+// Home Page
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "frontend", "index.html"));
 });
 
+// =========================
+// MongoDB Connection
+// =========================
 
+const mongoURI =
+    process.env.MONGODB_URI ||
+    "mongodb://127.0.0.1:27017/vehicleDB";
 
-// MongoDB connection
+mongoose
+    .connect(mongoURI)
+    .then(() => {
+        console.log("✅ MongoDB Connected");
+    })
+    .catch((err) => {
+        console.error("❌ MongoDB Connection Error:", err.message);
+    });
 
-mongoose.connect("mongodb+srv://vinayakramya80_db_user:ramya12@cluster0.qwtkmfx.mongodb.net/?appName=Cluster0")
-.then(() => {
-  console.log("✅ MongoDB Connected");
-})
-.catch((err) => {
-  console.log(err);
-});
+// =========================
+// Start Server
+// =========================
 
+const PORT = process.env.PORT || 3000;
 
-
-app.listen(3000,()=>{
-    console.log("Server running on http://localhost:3000");
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
 });
