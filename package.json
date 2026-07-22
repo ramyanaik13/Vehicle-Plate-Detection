@@ -1,24 +1,54 @@
-{
-  "name": "mediaprocessingassignment",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "axios": "^1.18.1",
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "form-data": "^4.0.6",
-    "mongoose": "^9.8.0",
-    "multer": "^2.2.0",
-    "sharp": "^0.35.3",
-    "tesseract.js": "^7.0.0",
-    "uuid": "^14.0.1"
-  }
-}
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const path = require("path");
+
+const uploadRoute = require("./routes/upload");
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Serve frontend
+app.use(express.static(path.join(__dirname, "frontend")));
+
+// API Route
+app.use("/api/upload", uploadRoute);
+
+// Home Page
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "frontend", "index.html"));
+});
+
+// =========================
+// MongoDB Connection
+// =========================
+
+// Local MongoDB for development
+// Render will use MONGODB_URI if you add it as an environment variable.
+
+const mongoURI =
+    process.env.MONGODB_URI ||
+    "mongodb://127.0.0.1:27017/vehicleDB";
+
+mongoose
+    .connect(mongoURI)
+    .then(() => {
+        console.log("✅ MongoDB Connected");
+    })
+    .catch((err) => {
+        console.log("❌ MongoDB Connection Error:");
+        console.log(err.message);
+    });
+
+// =========================
+// Start Server
+// =========================
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+});
