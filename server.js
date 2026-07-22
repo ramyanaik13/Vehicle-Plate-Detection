@@ -32,11 +32,11 @@ app.get("/", (req,res)=>{
 // MongoDB connection
 
 mongoose.connect("mongodb://127.0.0.1:27017/vehicleDB")
-.then(()=>{
-    console.log("MongoDB connected");
+.then(() => {
+  console.log("✅ MongoDB Connected");
 })
-.catch(err=>{
-    console.log(err);
+.catch((err) => {
+  console.log(err);
 });
 
 
